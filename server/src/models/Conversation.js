@@ -17,7 +17,7 @@ const conversationSchema = new Schema(
       senderId: String,
       senderName: String,
       senderAvatar: String,
-      createdAt: Date
+      createdAt: Date //timestamp
     },
     lastMessageAt: { type: Date },
     unreadCounts: {
