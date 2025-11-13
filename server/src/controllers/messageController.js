@@ -1,4 +1,4 @@
-const Message = require("@/models/Message");
+const Message = require("../models/Message");
 const { updateConversationLastMessage } = require("./conversationController");
 
 // Create a new message
