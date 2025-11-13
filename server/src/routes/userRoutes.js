@@ -2,10 +2,9 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 
-// Create or update user profile
-router.post("/create-or-update", userController.createOrUpdateUser);
-
-// Get user by Clerk user ID
+// ✅ Match function name from userController.js
+router.post("/create-or-update", userController.createOrUpdateUserProfile);
 router.get("/:clerkUserId", userController.getUserProfile);
+router.put("/:clerkUserId/last-seen", userController.updateLastSeen);
 
 module.exports = router;

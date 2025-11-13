@@ -2,13 +2,9 @@ const express = require("express");
 const router = express.Router();
 const conversationController = require("../controllers/conversationController");
 
-// Create new conversation
+// ✅ Match function names
 router.post("/", conversationController.createConversation);
-
-// Get all conversations for a user
-router.get("/user/:userId", conversationController.getUserConversations);
-
-// Add member to conversation
-router.put("/:conversationId/add-member", conversationController.addMember);
+router.get("/user/:userId", conversationController.getConversations);
+router.get("/:conversationId", conversationController.getConversationById);
 
 module.exports = router;
