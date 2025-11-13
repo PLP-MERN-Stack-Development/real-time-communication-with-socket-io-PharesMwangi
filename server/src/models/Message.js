@@ -13,7 +13,7 @@ const messageSchema = new Schema(
         required: true
     },
     senderName: {
-        type: String,
+        type: String, //display name
         required: true
     },
     senderAvatar: {
