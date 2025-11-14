@@ -1,77 +1,145 @@
-# Real-Time Chat Application with Socket.io
+# Mwas Chat — Real-time chat with Socket.io
 
-This assignment focuses on building a real-time chat application using Socket.io, implementing bidirectional communication between clients and server.
+This repository contains a real-time chat application built with React (Vite) on the client and Express + Socket.io on the server. The app uses Clerk for authentication, MongoDB (Mongoose) for persistence, and Socket.io for real-time messaging.
 
-## Assignment Overview
+## Highlights / Features
 
-You will build a chat application with the following features:
-1. Real-time messaging using Socket.io
-2. User authentication and presence
-3. Multiple chat rooms or private messaging
-4. Real-time notifications
-5. Advanced features like typing indicators and read receipts
+- Real-time messaging with Socket.io
+- User presence and simple join/leave system
+- Private messages and global messages (client provides helper for both)
+- Typing indicators
+- Clerk authentication integrated on the client
 
-## Project Structure
+## Tech stack
+
+- Frontend: React (Vite), Tailwind CSS, Clerk for auth
+- Backend: Node.js, Express, Socket.io, Mongoose (MongoDB)
+
+## Quick repo layout
 
 ```
-socketio-chat/
-├── client/                 # React front-end
-│   ├── public/             # Static files
-│   ├── src/                # React source code
-│   │   ├── components/     # UI components
-│   │   ├── context/        # React context providers
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── pages/          # Page components
-│   │   ├── socket/         # Socket.io client setup
-│   │   └── App.jsx         # Main application component
-│   └── package.json        # Client dependencies
-├── server/                 # Node.js back-end
-│   ├── config/             # Configuration files
-│   ├── controllers/        # Socket event handlers
-│   ├── models/             # Data models
-│   ├── socket/             # Socket.io server setup
-│   ├── utils/              # Utility functions
-│   ├── server.js           # Main server file
-│   └── package.json        # Server dependencies
-└── README.md               # Project documentation
+./
+├── client/                # React front-end (open this folder to run client)
+│   └── client/
+│       ├── public/
+│       └── src/
+│           ├── socket/socket.js   # socket client + hook
+│           ├── App.jsx
+│           └── pages/
+├── server/                # Express + Socket.io server
+│   ├── src/
+│   │   ├── config/db.js
+│   │   ├── controllers/
+│   │   └── routes/
+│   └── server.js
+├── Week5-Assignment.md    # assignment brief
+└── README.md
 ```
 
-## Getting Started
+## Environment variables
 
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Follow the setup instructions in the `Week5-Assignment.md` file
-4. Complete the tasks outlined in the assignment
+Create a `.env` file in the `server/` folder with at least:
 
-## Files Included
+- MONGO_URI — MongoDB connection string
+- PORT — (optional) server port, defaults to 5000
 
-- `Week5-Assignment.md`: Detailed assignment instructions
-- Starter code for both client and server:
-  - Basic project structure
-  - Socket.io configuration templates
-  - Sample components for the chat interface
+Create a `.env` (or set environment) for the client with:
 
-## Requirements
+- VITE_CLERK_PUBLISHABLE_KEY — Clerk publishable key for auth
+- VITE_SOCKET_URL — URL of the socket server (defaults to `http://localhost:5000`)
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Modern web browser
-- Basic understanding of React and Express
+Example server `.env`:
 
-## Submission
+```
+MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.example.mongodb.net/mydb
+PORT=5000
+```
 
-Your work will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+Example client (Vite) env (place in `client/client/.env` or set prefixed vars):
 
-1. Complete both the client and server portions of the application
-2. Implement the core chat functionality
-3. Add at least 3 advanced features
-4. Document your setup process and features in the README.md
-5. Include screenshots or GIFs of your working application
-6. Optional: Deploy your application and add the URLs to your README.md
+```
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+VITE_SOCKET_URL=http://localhost:5000
+```
 
-## Resources
+## Installation & run (development)
 
-- [Socket.io Documentation](https://socket.io/docs/v4/)
-- [React Documentation](https://react.dev/)
-- [Express.js Documentation](https://expressjs.com/)
-- [Building a Chat Application with Socket.io](https://socket.io/get-started/chat) 
+Open two terminals — one for server and one for client.
+
+Server:
+
+```
+cd server
+npm install
+# Start with node (or install nodemon and run nodemon server.js)
+node server.js
+```
+
+Client:
+
+```
+cd client/client
+npm install
+npm run dev
+```
+
+Notes:
+- The client `package.json` uses Vite. The `dev` script runs `vite`.
+- The server will start on `PORT` (default 5000). The client expects socket server at `VITE_SOCKET_URL` or `http://localhost:5000`.
+
+## Build (production)
+
+Client:
+
+```
+cd client/client
+npm run build
+# preview locally
+npm run preview
+```
+
+Server: build step not included — run `node server.js` or add `nodemon`/PM2 for production/auto-restart.
+
+## API routes (Express)
+
+The server registers the following routes (see `server/server.js`):
+
+- GET / -> returns a small status string
+- /api/users -> user-related routes (see `server/src/routes/userRoutes.js`)
+- /api/conversations -> conversation-related routes
+- /api/messages -> message-related routes
+
+Check `server/src/routes` for full details of each route and payload shapes.
+
+## Socket.io events (client ↔ server)
+
+Client emits:
+- `user_join` — payload: username (on connect)
+- `send_message` — payload: { message }
+- `private_message` — payload: { to, message }
+- `typing` — payload: boolean (isTyping)
+
+Server emits / client listens for:
+- `receive_message` — new global message
+- `private_message` — private message to a user
+- `user_list` — list of online users
+- `user_joined` — system message / notification of join
+- `user_left` — system message / notification of leave
+- `typing_users` — list of users currently typing
+
+The client side socket helper is at `client/client/src/socket/socket.js` and exposes a `useSocket` hook and a `socket` instance for convenient usage.
+
+## Important files of interest
+
+- `client/client/src/socket/socket.js` — socket client configuration and hook
+- `client/client/src/App.jsx` — top-level client app (Clerk auth + Dashboard)
+- `server/server.js` — server entry (express + socket.io init)
+- `server/src/config/db.js` — database connect (MongoDB via Mongoose)
+
+## Common issues / troubleshooting
+
+- CORS errors: ensure server allows requests from the dev client origin. The server currently sets `cors()` and socket.io is set to allow all origins.
+- Socket connection failing: ensure `VITE_SOCKET_URL` points to the running server and the server port matches (default 5000). Check console logs on both server and client.
+- Clerk auth not working: ensure `VITE_CLERK_PUBLISHABLE_KEY` is set for the client.
+- Routes 404: verify server started and routes files exist under `server/src/routes`.
+
